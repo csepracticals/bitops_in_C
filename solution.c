@@ -44,8 +44,10 @@
 #define PREFIX_LEN  15  /*Max length of IP address in A.B.C.D format*/
 #define MAX_MASK_LEN 32  /*Maximum mask value in decimal notation*/
 
-/*For example, /24 should return an unsigned integer equivalent to below bit settings
- *11111111 11111111 11111111 00000000
+/*For example, if mask = 24 is passed as an argument, 
+ * function should return an unsigned integer equivalent to 
+ * below bit settings
+ * 11111111 11111111 11111111 00000000
  * */
 static unsigned int
 get_mask_value_in_integer_format(char mask_value){
@@ -65,16 +67,21 @@ get_broadcast_address(char *ip_addr,
                       char *output_buffer){
     
     unsigned int ip_addr_integer = 0;
+
+    /*Convert ip address from A.B.C.D format to equivalent unsigned integer*/
     inet_pton(AF_INET, ip_addr, &ip_addr_integer);
     /* To understand below line, you need to google
      * Little endian and big endian concept*/
     ip_addr_integer =  htonl(ip_addr_integer);
+
     unsigned int mask_integer_format = get_mask_value_in_integer_format(mask);
     /*if mask_integer_format = 11111111 11111111 11111111 00000000, then below
      * fn would return 00000000 00000000 00000000 11111111*/
-    COMPLEMENT(mask_integer_format);
+    COMPLEMENT(mask_integer_format); /*Revere the bits*/
+    /*now, Perform OR-ing*/
     unsigned int broadcast_addr = ip_addr_integer | mask_integer_format;
     broadcast_addr = htonl(broadcast_addr);
+    /*convert the broadcast address from interger to A.B.C.D format*/
     inet_ntop(AF_INET, &broadcast_addr, output_buffer, PREFIX_LEN + 1);
     output_buffer[PREFIX_LEN] = '\0';
 }
@@ -83,6 +90,7 @@ unsigned int
 get_ip_integer_equivalent(char *ip_address){
 
     unsigned int ip_addr_integer = 0;
+    /*Convert ip address from A.B.C.D format to equivalent unsigned integer*/
     inet_pton(AF_INET, ip_address, &ip_addr_integer);
     return htonl(ip_addr_integer);
 }
@@ -91,10 +99,12 @@ void
 get_abcd_ip_format(unsigned int ip_address, 
                     char *output_buffer){
 
+    /*Convert an ip address from Integer to A.B.C.D format*/
     inet_ntop(AF_INET, &ip_address, output_buffer, PREFIX_LEN + 1);
     output_buffer[PREFIX_LEN] = '\0';
 }
 
+/*Follow the steps explained in the course*/
 void
 get_network_id(char *ip_address, char mask, char *output_buffer){
 
@@ -112,6 +122,7 @@ get_subnet_cardinality(char mask_value){
     return pow(2, MAX_MASK_LEN - mask_value) -2 ;
 }
 
+/*Follow the steps explained in the course*/
 int /*Return 0 if true, -1 if false*/
 check_ip_subnet_membser_ship(char *network_id, 
                              char mask, 
